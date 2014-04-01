@@ -12,7 +12,7 @@ Have fun.
 
 ### Furthermore:
 
-If you want update the documents or modify the <code>docSet.dsidx</code>>, you can get the 
+If you want update the documents or modify the <code>docSet.dsidx</code>, you can get the 
 [script](https://gist.github.com/9907229.git) from gist to generate the 
-<code>docSet.dsidx</code>>.You can modify the script.
+<code>docSet.dsidx</code>.You can modify the script.
 
