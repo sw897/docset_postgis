@@ -1,0 +1,37 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_LineLocatePoint</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="PostGIS 2.1.1 Manual"><link rel="up" href="reference.html#Linear_Referencing" title="8.11. Linear Referencing"><link rel="prev" href="ST_Line_Interpolate_Point.html" title="ST_LineInterpolatePoint"><link rel="next" href="ST_Line_Substring.html" title="ST_LineSubstring"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_LineLocatePoint</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ST_Line_Interpolate_Point.html">Prev</a> </td><th width="60%" align="center">8.11. Linear Referencing</th><td width="20%" align="right"> <a accesskey="n" href="ST_Line_Substring.html">Next</a></td></tr></table><hr></div><div class="refentry" title="ST_LineLocatePoint"><a name="ST_Line_Locate_Point"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_LineLocatePoint &#8212; Returns a float between 0 and 1 representing the location of
+			the closest point on LineString to the given Point, as a fraction
+			of total 2d line length.</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">float <b class="fsfunc">ST_LineLocatePoint</b>(</code>geometry  <var class="pdparam">a_linestring</var>, geometry  <var class="pdparam">a_point</var><code>)</code>;</p></div></div><div class="refsection" title="Description"><a name="id465763"></a><h2>Description</h2><p>Returns a float between 0 and 1 representing the location of
+			the closest point on LineString to the given Point, as a fraction
+			of total <a class="link" href="ST_Length2D.html" title="ST_Length2D">2d line</a> length.</p><p>You can use the returned location to extract a Point (<a class="xref" href="ST_Line_Interpolate_Point.html" title="ST_LineInterpolatePoint">ST_LineInterpolatePoint</a>) or
+			a substring (<a class="xref" href="ST_Line_Substring.html" title="ST_LineSubstring">ST_LineSubstring</a>).</p><p>This is useful for approximating numbers of addresses</p><p>Availability: 1.1.0</p><p>Changed: 2.1.0. Up to 2.0.x this was called ST_Line_Locate_Point.</p></div><div class="refsection" title="Examples"><a name="id465807"></a><h2>Examples</h2><pre class="programlisting">
+--Rough approximation of finding the street number of a point along the street
+--Note the whole foo thing is just to generate dummy data that looks
+--like house centroids and street
+--We use ST_DWithin to exclude
+--houses too far away from the street to be considered on the street
+SELECT ST_AsText(house_loc) As as_text_house_loc,
+	startstreet_num +
+		CAST( (endstreet_num - startstreet_num)
+			* ST_LineLocatePoint(street_line, house_loc) As integer) As street_num
+FROM
+(SELECT ST_GeomFromText('LINESTRING(1 2, 3 4)') As street_line,
+	ST_MakePoint(x*1.01,y*1.03) As house_loc, 10 As startstreet_num,
+		20 As endstreet_num
+FROM generate_series(1,3) x CROSS JOIN generate_series(2,4) As y)
+As foo
+WHERE ST_DWithin(street_line, house_loc, 0.2);
+
+ as_text_house_loc | street_num
+-------------------+------------
+ POINT(1.01 2.06)  |         10
+ POINT(2.02 3.09)  |         15
+ POINT(3.03 4.12)  |         20
+
+ --find closest point on a line to a point or other geometry
+ SELECT ST_AsText(ST_LineInterpolatePoint(foo.the_line, ST_LineLocatePoint(foo.the_line, ST_GeomFromText('POINT(4 3)'))))
+FROM (SELECT ST_GeomFromText('LINESTRING(1 2, 4 5, 6 7)') As the_line) As foo;
+   st_astext
+----------------
+ POINT(3 4)
+
+</pre></div><div class="refsection" title="See Also"><a name="id465833"></a><h2>See Also</h2><p><a class="xref" href="ST_DWithin.html" title="ST_DWithin">ST_DWithin</a>, <a class="xref" href="ST_Length2D.html" title="ST_Length2D">ST_Length2D</a>, <a class="xref" href="ST_Line_Interpolate_Point.html" title="ST_LineInterpolatePoint">ST_LineInterpolatePoint</a>, <a class="xref" href="ST_Line_Substring.html" title="ST_LineSubstring">ST_LineSubstring</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ST_Line_Interpolate_Point.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Linear_Referencing">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_Line_Substring.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_LineInterpolatePoint </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_LineSubstring</td></tr></table></div></body></html>

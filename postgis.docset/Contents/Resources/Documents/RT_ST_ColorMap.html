@@ -1,0 +1,133 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_ColorMap</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="PostGIS 2.1.1 Manual"><link rel="up" href="RT_reference.html#Raster_Processing_MapAlgebra" title="9.11.1. Map Algebra"><link rel="prev" href="RT_ST_Clip.html" title="ST_Clip"><link rel="next" href="RT_ST_Intersection.html" title="ST_Intersection"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_ColorMap</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_Clip.html">Prev</a> </td><th width="60%" align="center">9.11.1. Map Algebra</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_Intersection.html">Next</a></td></tr></table><hr></div><div class="refentry" title="ST_ColorMap"><a name="RT_ST_ColorMap"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_ColorMap &#8212; Creates a new raster of up to four 8BUI bands (grayscale, RGB, RGBA) from the source raster and a specified band. Band 1 is assumed if not specified.</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">raster <b class="fsfunc">ST_ColorMap</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">nband=1</var>, text  <var class="pdparam">colormap=grayscale</var>, text  <var class="pdparam">method=INTERPOLATE</var><code>)</code>;</p></div><div class="funcsynopsis"><p><code class="funcdef">raster <b class="fsfunc">ST_ColorMap</b>(</code>raster  <var class="pdparam">rast</var>, text  <var class="pdparam">colormap</var>, text  <var class="pdparam">method=INTERPOLATE</var><code>)</code>;</p></div></div><div class="refsection" title="Description"><a name="id545338"></a><h2>Description</h2><p>
+						Apply a <code class="varname">colormap</code> to the band at <code class="varname">nband</code> of <code class="varname">rast</code> resulting a new raster comprised of up to four 8BUI bands. The number of 8BUI bands in the new raster is determined by the number of color components defined in <code class="varname">colormap</code>.
+					</p><p>If <code class="varname">nband</code> is not specified, then band 1 is assumed.</p><p>
+						<code class="varname">colormap</code> can be a keyword of a pre-defined colormap or a set of lines defining the value and the color components.
+					</p><p>
+						Valid pre-defined <code class="varname">colormap</code> keyword:
+					</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+								<code class="varname">grayscale</code> or <code class="varname">greyscale</code> for a one 8BUI band raster of shades of gray.
+							</p></li><li class="listitem"><p>
+								<code class="varname">pseudocolor</code> for a four 8BUI (RGBA) band raster with colors going from blue to green to red.
+							</p></li><li class="listitem"><p>
+								<code class="varname">fire</code> for a four 8BUI (RGBA) band raster with colors going from black to red to pale yellow.
+							</p></li><li class="listitem"><p>
+								<code class="varname">bluered</code> for a four 8BUI (RGBA) band raster with colors going from blue to pale white to red.
+							</p></li></ul></div><p>
+						Users can pass a set of entries (one per line) to <code class="varname">colormap</code> to specify custom colormaps. Each entry generally consists of five values: the pixel value and corresponding Red, Green, Blue, Alpha components (color components between 0 and 255). Percent values can be used instead of pixel values where 0% and 100% are the minimum and maximum values found in the raster band. Values can be separated with commas (','), tabs, colons (':') and/or spaces. The pixel value can be set to <span class="emphasis"><em>nv</em></span>, <span class="emphasis"><em>null</em></span> or <span class="emphasis"><em>nodata</em></span> for the NODATA value. An example is provided below.
+					</p><pre class="programlisting">
+5 0 0 0 255
+4 100:50 55 255
+1 150,100 150 255
+0% 255 255 255 255
+nv 0 0 0 0
+					</pre><p>
+						The syntax of <code class="varname">colormap</code> is similar to that of the color-relief mode of GDAL <a class="ulink" href="http://www.gdal.org/gdaldem.html#gdaldem_color_relief" target="_top">gdaldem</a>.
+					</p><p>
+						Valid keywords for <code class="varname">method</code>:
+					</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+								<code class="varname">INTERPOLATE</code> to use linear interpolation to smoothly blend the colors between the given pixel values
+							</p></li><li class="listitem"><p>
+								<code class="varname">EXACT</code> to strictly match only those pixels values found in the colormap. Pixels whose value does not match a colormap entry will be set to 0 0 0 0 (RGBA)
+							</p></li><li class="listitem"><p>
+								<code class="varname">NEAREST</code> to use the colormap entry whose value is closest to the pixel value
+							</p></li></ul></div><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+							A great reference for colormaps is <a class="ulink" href="http://www.colorbrewer2.org" target="_top">ColorBrewer</a>.
+						</p></td></tr></table></div><div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+							The resulting bands of new raster will have no NODATA value set.  Use <a class="xref" href="RT_ST_SetBandNoDataValue.html" title="ST_SetBandNoDataValue">ST_SetBandNoDataValue</a> to set a NODATA value if one is needed.
+						</p></td></tr></table></div><p>Availability: 2.1.0 </p></div><div class="refsection" title="Examples"><a name="id545552"></a><h2>Examples</h2><p>This is a junk table to play with</p><pre class="programlisting">
+-- setup test raster table --
+DROP TABLE IF EXISTS funky_shapes;
+CREATE TABLE funky_shapes(rast raster);
+
+INSERT INTO funky_shapes(rast)
+WITH ref AS (
+	SELECT ST_MakeEmptyRaster( 200, 200, 0, 200, 1, -1, 0, 0) AS rast
+)
+SELECT
+	ST_Union(rast)
+FROM (
+	SELECT 
+		ST_AsRaster(
+			ST_Rotate(
+				ST_Buffer(
+					ST_GeomFromText('LINESTRING(0 2,50 50,150 150,125 50)'),
+					i*2
+				),
+				pi() * i * 0.125, ST_Point(50,50)
+			),
+			ref.rast, '8BUI'::text, i * 5
+		) AS rast
+	FROM ref
+	CROSS JOIN generate_series(1, 10, 3) AS i
+) AS shapes;
+					</pre><pre class="programlisting">
+SELECT
+	ST_NumBands(rast) As n_orig,
+	ST_NumBands(ST_ColorMap(rast,1, 'greyscale')) As ngrey,
+	ST_NumBands(ST_ColorMap(rast,1, 'pseudocolor')) As npseudo,
+	ST_NumBands(ST_ColorMap(rast,1, 'fire')) As nfire,
+	ST_NumBands(ST_ColorMap(rast,1, 'bluered')) As nbluered,
+	ST_NumBands(ST_ColorMap(rast,1, '
+100% 255   0   0
+ 80% 160   0   0
+ 50% 130   0   0
+ 30%  30   0   0
+ 20%  60   0   0
+  0%   0   0   0
+  nv 255 255 255
+	')) As nred
+FROM funky_shapes;
+					</pre><pre class="screen">
+ n_orig | ngrey | npseudo | nfire | nbluered | nred
+--------+-------+---------+-------+----------+------
+      1 |     1 |       4 |     4 |        4 |    3
+					</pre></div><div class="refsection" title="Examples: Compare different color map looks using ST_AsPNG"><a name="id545589"></a><h2>Examples: Compare different color map looks using ST_AsPNG</h2><pre class="programlisting">
+SELECT
+	ST_AsPNG(rast) As orig_png,
+	ST_AsPNG(ST_ColorMap(rast,1,'greyscale')) As grey_png,
+	ST_AsPNG(ST_ColorMap(rast,1, 'pseudocolor')) As pseudo_png,
+	ST_AsPNG(ST_ColorMap(rast,1, 'nfire')) As fire_png,
+	ST_AsPNG(ST_ColorMap(rast,1, 'bluered')) As bluered_png,
+	ST_AsPNG(ST_ColorMap(rast,1, '
+100% 255   0   0
+ 80% 160   0   0
+ 50% 130   0   0
+ 30%  30   0   0
+ 20%  60   0   0
+  0%   0   0   0
+  nv 255 255 255
+	')) As red_png
+FROM funky_shapes;
+					</pre><div class="informaltable"><table border="1"><colgroup><col><col><col></colgroup><tbody><tr><td>
+										<p>
+											</p><div class="informalfigure"><div class="mediaobject"><img src="images/st_colormap_orig.png"><div class="caption"><p>orig_png</p></div></div></div><p>
+										</p>
+									</td><td>
+										<p>
+											</p><div class="informalfigure"><div class="mediaobject"><img src="images/st_colormap_grey.png"><div class="caption"><p>grey_png</p></div></div></div><p>
+										</p>
+									</td><td>
+										<p>
+											</p><div class="informalfigure"><div class="mediaobject"><img src="images/st_colormap_pseudo.png"><div class="caption"><p>pseudo_png</p></div></div></div><p>
+										</p>
+									</td></tr><tr><td>
+										<p>
+											</p><div class="informalfigure"><div class="mediaobject"><img src="images/st_colormap_fire.png"><div class="caption"><p>fire_png</p></div></div></div><p>
+										</p>
+									</td><td>
+										<p>
+											</p><div class="informalfigure"><div class="mediaobject"><img src="images/st_colormap_bluered.png"><div class="caption"><p>bluered_png</p></div></div></div><p>
+										</p>
+									</td><td>
+										<p>
+											</p><div class="informalfigure"><div class="mediaobject"><img src="images/st_colormap_red.png"><div class="caption"><p>red_png</p></div></div></div><p>
+										</p>
+									</td></tr></tbody></table></div></div><div class="refsection" title="See Also"><a name="id545800"></a><h2>See Also</h2><p>
+						<a class="xref" href="RT_ST_AsPNG.html" title="ST_AsPNG">ST_AsPNG</a>,
+						<a class="xref" href="RT_ST_AsRaster.html" title="ST_AsRaster">ST_AsRaster</a>
+						<a class="xref" href="RT_ST_MapAlgebra.html" title="ST_MapAlgebra">ST_MapAlgebra</a>, 
+						<a class="xref" href="RT_ST_NumBands.html" title="ST_NumBands">ST_NumBands</a>, 
+						<a class="xref" href="RT_ST_Reclass.html" title="ST_Reclass">ST_Reclass</a>,
+						<a class="xref" href="RT_ST_SetBandNoDataValue.html" title="ST_SetBandNoDataValue">ST_SetBandNoDataValue</a>, 
+						<a class="xref" href="RT_ST_Union.html" title="ST_Union">ST_Union</a>
+					</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_Clip.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Processing_MapAlgebra">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_Intersection.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Clip </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Intersection</td></tr></table></div></body></html>

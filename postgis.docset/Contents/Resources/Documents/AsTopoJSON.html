@@ -1,0 +1,40 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>AsTopoJSON</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="PostGIS 2.1.1 Manual"><link rel="up" href="Topology.html#TopoGeometry_Outputs" title="11.11. TopoGeometry Outputs"><link rel="prev" href="AsGML.html" title="AsGML"><link rel="next" href="Extras.html" title="Chapter 12. PostGIS Extras"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">AsTopoJSON</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="AsGML.html">Prev</a> </td><th width="60%" align="center">11.11. TopoGeometry Outputs</th><td width="20%" align="right"> <a accesskey="n" href="Extras.html">Next</a></td></tr></table><hr></div><div class="refentry" title="AsTopoJSON"><a name="AsTopoJSON"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>AsTopoJSON &#8212; Returns the TopoJSON representation of a topogeometry.</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">text <b class="fsfunc">AsTopoJSON</b>(</code>topogeometry  <var class="pdparam">tg</var>, regclass  <var class="pdparam">edgeMapTable</var><code>)</code>;</p></div></div><div class="refsection" title="Description"><a name="id606882"></a><h2>Description</h2><p>Returns the TopoJSON representation of a topogeometry. If <code class="varname">edgeMapTable</code> is not null, it will be used as a lookup/storage mapping of edge identifiers to arc indices. This is to be able to allow for a compact "arcs" array in the final document.
+</p><p>
+The table, if given, is expected to have an "arc_id" field of type "serial" and an "edge_id" of type integer; the code will query the table for "edge_id" so it is recommended to add an index on that field.
+</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+Arc indices in the TopoJSONjoutput are 0-based but they are 1-based
+in the "edgeMapTable" table.
+</p></td></tr></table></div><p>
+A full TopoJSON document will be need to contain, in addition to the snippets returned by this function, the actual arcs plus some headers. See the <a class="ulink" href="http://github.com/mbostock/topojson/wiki/Specification" target="_top">TopoJSON specification</a>.
+		</p><p>Availability: 2.1.0 </p></div><div class="refsection" title="See Also"><a name="id606930"></a><h2>See Also</h2><p><a class="xref" href="ST_AsGeoJSON.html" title="ST_AsGeoJSON">ST_AsGeoJSON</a></p></div><div class="refsection" title="Examples"><a name="id606943"></a><h2>Examples</h2><pre class="programlisting">
+CREATE TEMP TABLE edgemap(arc_id serial, edge_id int unique);
+
+-- header
+SELECT '{ "type": "Topology", "transform": { "scale": [1,1], "translate": [0,0] }, "objects": {';
+
+-- objects
+SELECT '"' || feature_name || '": ' || AsTopoJSON(feature, 'edgemap')
+FROM features.big_parcels WHERE feature_name = 'P3P4';
+
+-- arcs
+SELECT '}, "arcs": ['
+  UNION ALL
+SELECT (regexp_matches(ST_AsGEOJSON(ST_SnapToGrid(e.geom,1)), '\[.*\]'))[1] as t
+FROM edgemap m, city_data.edge e WHERE e.edge_id = m.edge_id;
+
+-- footer
+SELECT ']}'::text as t
+
+-- Result:
+{ "type": "Topology", "transform": { "scale": [1,1], "translate": [0,0] }, "objects": {
+"P3P4": { "type": "MultiPolygon", "arcs": [[[-1]],[[6,5,-5,-4,-3,1]]]}
+}, "arcs": [
+[[25,30],[31,30],[31,40],[17,40],[17,30],[25,30]]
+[[35,6],[35,14]]
+[[35,6],[47,6]]
+[[47,6],[47,14]]
+[[47,14],[47,22]]
+[[35,22],[47,22]]
+[[35,14],[35,22]]
+]}
+</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="AsGML.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Topology.html#TopoGeometry_Outputs">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Extras.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">AsGML </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 12. PostGIS Extras</td></tr></table></div></body></html>

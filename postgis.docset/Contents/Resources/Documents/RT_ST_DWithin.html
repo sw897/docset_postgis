@@ -1,0 +1,45 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_DWithin</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="PostGIS 2.1.1 Manual"><link rel="up" href="RT_reference.html#Raster_Relationships" title="9.13. Raster and Raster Band Spatial Relationships"><link rel="prev" href="RT_ST_Within.html" title="ST_Within"><link rel="next" href="RT_ST_DFullyWithin.html" title="ST_DFullyWithin"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_DWithin</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_Within.html">Prev</a> </td><th width="60%" align="center">9.13. Raster and Raster Band Spatial Relationships</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_DFullyWithin.html">Next</a></td></tr></table><hr></div><div class="refentry" title="ST_DWithin"><a name="RT_ST_DWithin"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_DWithin &#8212; 
+				Return true if rasters rastA and rastB are within the specified distance of each other.
+			</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">boolean <b class="fsfunc">ST_DWithin</b>(</code>
+						raster 
+						<var class="pdparam">rastA</var>
+					, 
+						integer 
+						<var class="pdparam">nbandA</var>
+					, 
+						raster 
+						<var class="pdparam">rastB</var>
+					, 
+						integer 
+						<var class="pdparam">nbandB</var>
+					, 
+						double precision 
+						<var class="pdparam">distance_of_srid</var>
+					<code>)</code>;</p><p><code class="funcdef">boolean <b class="fsfunc">ST_DWithin</b>(</code>
+						raster 
+						<var class="pdparam">rastA</var>
+					, 
+						raster 
+						<var class="pdparam">rastB</var>
+					, 
+						double precision 
+						<var class="pdparam">distance_of_srid</var>
+					<code>)</code>;</p></div></div><div class="refsection" title="Description"><a name="id559140"></a><h2>Description</h2><p>
+				Return true if rasters rastA and rastB are within the specified distance of each other. If the band number is not provided (or set to NULL), only the convex hull of the raster is considered in the test. If the band number is provided, only those pixels with value (not NODATA) are considered in the test.
+			</p><p>
+				The distance is specified in units defined by the spatial reference system of the rasters. For this function to make sense, the source rasters must both be of the same coordinate projection, having the same SRID.
+			</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+					This operand will make use of any indexes that may be available on the rasters.
+				</p></td></tr></table></div><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+					To test the spatial relationship of a raster and a geometry, use ST_Polygon on the raster, e.g. ST_DWithin(ST_Polygon(raster), geometry).
+				</p></td></tr></table></div><p>Availability: 2.1.0</p></div><div class="refsection" title="Examples"><a name="id559176"></a><h2>Examples</h2><pre class="programlisting">
+SELECT r1.rid, r2.rid, ST_DWithin(r1.rast, 1, r2.rast, 1, 3.14) FROM dummy_rast r1 CROSS JOIN dummy_rast r2 WHERE r1.rid = 2;
+
+ rid | rid | st_dwithin 
+-----+-----+------------
+   2 |   1 | f
+   2 |   2 | t
+			</pre></div><div class="refsection" title="See Also"><a name="id559190"></a><h2>See Also</h2><p>
+				<a class="xref" href="RT_ST_Within.html" title="ST_Within">ST_Within</a>, 
+				<a class="xref" href="RT_ST_DFullyWithin.html" title="ST_DFullyWithin">ST_DFullyWithin</a>
+			</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_Within.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Relationships">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_DFullyWithin.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Within </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_DFullyWithin</td></tr></table></div></body></html>

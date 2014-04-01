@@ -1,0 +1,43 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_Polygon</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="PostGIS 2.1.1 Manual"><link rel="up" href="RT_reference.html#Raster_Processing_Geometry" title="9.11.4. Raster to Geometry"><link rel="prev" href="RT_ST_MinConvexHull.html" title="ST_MinConvexHull"><link rel="next" href="RT_Raster_Intersect.html" title="&amp;&amp;"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_Polygon</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_MinConvexHull.html">Prev</a> </td><th width="60%" align="center">9.11.4. Raster to Geometry</th><td width="20%" align="right"> <a accesskey="n" href="RT_Raster_Intersect.html">Next</a></td></tr></table><hr></div><div class="refentry" title="ST_Polygon"><a name="RT_ST_Polygon"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_Polygon &#8212; Returns a multipolygon geometry formed by the union of pixels that have a pixel value that is not no data value.  If no band number is specified, band num defaults to 1.</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">geometry <b class="fsfunc">ST_Polygon</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">band_num=1</var><code>)</code>;</p></div></div><div class="refsection" title="Description"><a name="id556271"></a><h2>Description</h2><p>Availability: 0.1.6 Requires GDAL 1.7 or higher.</p><p>Enhanced: 2.1.0 Improved Speed (fully C-Based) and the returning multipolygon is ensured to be valid.</p><p>Changed: 2.1.0 In prior versions would sometimes return a polygon, changed to always return multipolygon.</p></div><div class="refsection" title="Examples"><a name="id556290"></a><h2>Examples</h2><pre class="programlisting">
+-- by default no data band value is 0 or not set, so polygon will return a square polygon	
+SELECT ST_AsText(ST_Polygon(rast)) As geomwkt
+FROM dummy_rast
+WHERE rid = 2;
+
+geomwkt
+--------------------------------------------
+MULTIPOLYGON(((3427927.75 5793244,3427928 5793244,3427928 5793243.75,3427927.75 5793243.75,3427927.75 5793244)))
+ 		
+ 		
+-- now we change the no data value of first band
+UPDATE dummy_rast SET rast = ST_SetBandNoDataValue(rast,1,254)
+WHERE rid = 2;
+SELECt rid, ST_BandNoDataValue(rast)
+from dummy_rast where rid = 2;
+
+-- ST_Polygon excludes the pixel value 254 and returns a multipolygon
+SELECT ST_AsText(ST_Polygon(rast)) As geomwkt
+FROM dummy_rast
+WHERE rid = 2;
+
+geomwkt
+---------------------------------------------------------
+MULTIPOLYGON(((3427927.9 5793243.95,3427927.85 5793243.95,3427927.85 5793244,3427927.9 5793244,3427927.9 5793243.95)),((3427928 5793243.85,3427928 5793243.8,3427927.95 5793243.8,3427927.95 5793243.85,3427927.9 5793243.85,3427927.9 5793243.9,3427927.9 5793243.95,3427927.95 5793243.95,3427928 5793243.95,3427928 5793243.85)),((3427927.8 5793243.75,3427927.75 5793243.75,3427927.75 5793243.8,3427927.75 5793243.85,3427927.75 5793243.9,3427927.75 5793244,3427927.8 5793244,3427927.8 5793243.9,3427927.8 5793243.85,3427927.85 5793243.85,3427927.85 5793243.8,3427927.85 5793243.75,3427927.8 5793243.75)))
+
+-- Or if you want the no data value different for just one time
+
+SELECT ST_AsText(
+	ST_Polygon(
+		ST_SetBandNoDataValue(rast,1,252)
+		)
+	) As geomwkt
+FROM dummy_rast
+WHERE rid =2;
+
+geomwkt
+---------------------------------
+MULTIPOLYGON(((3427928 5793243.85,3427928 5793243.8,3427928 5793243.75,3427927.85 5793243.75,3427927.8 5793243.75,3427927.8 5793243.8,3427927.75 5793243.8,3427927.75 5793243.85,3427927.75 5793243.9,3427927.75 5793244,3427927.8 5793244,3427927.85 5793244,3427927.9 5793244,3427928 5793244,3427928 5793243.95,3427928 5793243.85),(3427927.9 5793243.9,3427927.9 5793243.85,3427927.95 5793243.85,3427927.95 5793243.9,3427927.9 5793243.9)))
+					</pre></div><div class="refsection" title="See Also"><a name="id556319"></a><h2>See Also</h2><p>
+						<a class="xref" href="RT_ST_Value.html" title="ST_Value">ST_Value</a>, 
+						<a class="xref" href="RT_ST_DumpAsPolygons.html" title="ST_DumpAsPolygons">ST_DumpAsPolygons</a>
+					</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_MinConvexHull.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Processing_Geometry">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_Raster_Intersect.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_MinConvexHull </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> &amp;&amp;</td></tr></table></div></body></html>

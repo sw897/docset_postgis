@@ -1,0 +1,25 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>UpdateGeometrySRID</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="PostGIS 2.1.1 Manual"><link rel="up" href="reference.html#Management_Functions" title="8.2. Management Functions"><link rel="prev" href="Populate_Geometry_Columns.html" title="Populate_Geometry_Columns"><link rel="next" href="ST_BdPolyFromText.html" title="ST_BdPolyFromText"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">UpdateGeometrySRID</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Populate_Geometry_Columns.html">Prev</a> </td><th width="60%" align="center">8.2. Management Functions</th><td width="20%" align="right"> <a accesskey="n" href="ST_BdPolyFromText.html">Next</a></td></tr></table><hr></div><div class="refentry" title="UpdateGeometrySRID"><a name="UpdateGeometrySRID"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>UpdateGeometrySRID &#8212; Updates the SRID of all features in a geometry
+		column, geometry_columns metadata and srid. If it was enforced with constraints, the constraints will be updated with new srid constraint.
+		If the old was enforced by type definition, the type definition will be changed.</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">text <b class="fsfunc">UpdateGeometrySRID</b>(</code>varchar 
+			<var class="pdparam">table_name</var>, varchar 
+			<var class="pdparam">column_name</var>, integer 
+			<var class="pdparam">srid</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">UpdateGeometrySRID</b>(</code>varchar 
+			<var class="pdparam">schema_name</var>, varchar 
+			<var class="pdparam">table_name</var>, varchar 
+			<var class="pdparam">column_name</var>, integer 
+			<var class="pdparam">srid</var><code>)</code>;</p><p><code class="funcdef">text <b class="fsfunc">UpdateGeometrySRID</b>(</code>varchar 
+			<var class="pdparam">catalog_name</var>, varchar 
+			<var class="pdparam">schema_name</var>, varchar 
+			<var class="pdparam">table_name</var>, varchar 
+			<var class="pdparam">column_name</var>, integer 
+			<var class="pdparam">srid</var><code>)</code>;</p></div></div><div class="refsection" title="Description"><a name="id378908"></a><h2>Description</h2><p>Updates the SRID of all features in a geometry column, updating
+		constraints and reference in geometry_columns. Note: uses
+		current_schema() on schema-aware pgsql installations if schema is not
+		provided.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This function supports 3d and will not drop the z-index.</p><p><span class="inlinemediaobject"><img src="images/check.png"></span>
+ This method supports Circular Strings and Curves</p></div><div class="refsection" title="Examples"><a name="id378946"></a><h2>Examples</h2><p>This will change the srid of the roads table to 4326 from whatever it was before</p><pre class="programlisting">SELECT UpdateGeometrySRID('roads','geom',4326);</pre><p>The prior example is equivalent to this DDL statement</p><pre class="programlisting">ALTER TABLE roads 
+  ALTER COLUMN geom TYPE geometry(MULTILINESTRING, 4326) 
+    USING ST_SetSRID(geom,4326);</pre><p>If you got the projection wrong (or brought it in as unknown) in load and you wanted to transform to web mercator all in one shot
+    		You can do this with 
+    	DDL but there is no equivalent PostGIS management function to do so in one go.</p><pre class="programlisting">ALTER TABLE roads 
+ ALTER COLUMN geom TYPE geometry(MULTILINESTRING, 3857) USING ST_Transform(ST_SetSRID(geom,4326),3857) ;</pre></div><div class="refsection" title="See Also"><a name="id378985"></a><h2>See Also</h2><p><a class="xref" href="ST_SetSRID.html" title="ST_SetSRID">ST_SetSRID</a> , <a class="xref" href="ST_Transform.html" title="ST_Transform">ST_Transform</a></p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Populate_Geometry_Columns.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="reference.html#Management_Functions">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ST_BdPolyFromText.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Populate_Geometry_Columns </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_BdPolyFromText</td></tr></table></div></body></html>

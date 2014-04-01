@@ -1,0 +1,104 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_AddBand</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="PostGIS 2.1.1 Manual"><link rel="up" href="RT_reference.html#Raster_Constructors" title="9.3. Raster Constructors"><link rel="prev" href="RT_UpdateRasterSRID.html" title="UpdateRasterSRID"><link rel="next" href="RT_ST_AsRaster.html" title="ST_AsRaster"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_AddBand</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_UpdateRasterSRID.html">Prev</a> </td><th width="60%" align="center">9.3. Raster Constructors</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_AsRaster.html">Next</a></td></tr></table><hr></div><div class="refentry" title="ST_AddBand"><a name="RT_ST_AddBand"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_AddBand &#8212; 
+					Returns a raster with the new band(s) of given type added with given initial value in the given index location. If no index is specified, the band is added to the end.
+				</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">(1) raster <b class="fsfunc">ST_AddBand</b>(</code>raster  <var class="pdparam">rast</var>, addbandarg[]  <var class="pdparam">addbandargset</var><code>)</code>;</p><p><code class="funcdef">(2) raster <b class="fsfunc">ST_AddBand</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">index</var>, text  <var class="pdparam">pixeltype</var>, double precision  <var class="pdparam">initialvalue=0</var>, double precision  <var class="pdparam">nodataval=NULL</var><code>)</code>;</p><p><code class="funcdef">(3) raster <b class="fsfunc">ST_AddBand</b>(</code>raster  <var class="pdparam">rast</var>, text  <var class="pdparam">pixeltype</var>, double precision  <var class="pdparam">initialvalue=0</var>, double precision  <var class="pdparam">nodataval=NULL</var><code>)</code>;</p><p><code class="funcdef">(4) raster <b class="fsfunc">ST_AddBand</b>(</code>raster  <var class="pdparam">torast</var>, raster  <var class="pdparam">fromrast</var>, integer  <var class="pdparam">fromband=1</var>, integer  <var class="pdparam">torastindex=at_end</var><code>)</code>;</p><p><code class="funcdef">(5) raster <b class="fsfunc">ST_AddBand</b>(</code>raster  <var class="pdparam">torast</var>, raster[]  <var class="pdparam">fromrasts</var>, integer  <var class="pdparam">fromband=1</var>, integer  <var class="pdparam">torastindex=at_end</var><code>)</code>;</p><p><code class="funcdef">(6) raster <b class="fsfunc">ST_AddBand</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">index</var>, text  <var class="pdparam">outdbfile</var>, integer[]  <var class="pdparam">outdbindex</var>, double precision  <var class="pdparam">nodataval=NULL</var><code>)</code>;</p><p><code class="funcdef">(7) raster <b class="fsfunc">ST_AddBand</b>(</code>raster  <var class="pdparam">rast</var>, text  <var class="pdparam">outdbfile</var>, integer[]  <var class="pdparam">outdbindex</var>, integer  <var class="pdparam">index=at_end</var>, double precision  <var class="pdparam">nodataval=NULL</var><code>)</code>;</p></div></div><div class="refsection" title="Description"><a name="id526328"></a><h2>Description</h2><p>
+					Returns a raster with a new band added in given position (index), of given type, of given initial value, and of given nodata value.  If no index is specified, the band is added to the end. If no <code class="varname">fromband</code> is specified, band 1 is assumed. Pixel type is a string representation of one of the pixel types specified in <a class="xref" href="RT_ST_BandPixelType.html" title="ST_BandPixelType">ST_BandPixelType</a>.  If an existing index is specified all subsequent bands &gt;= that index are incremented by 1. If an initial value greater than the max of the pixel type is specified, then the initial value is set to the highest value allowed by the pixel type.
+				</p><p>
+					For the variant that takes an array of <a class="xref" href="addbandarg.html" title="addbandarg">addbandarg</a> (Variant 1), a specific addbandarg's index value is relative to the raster at the time when the band described by that addbandarg is being added to the raster.  See the Multiple New Bands example below.
+				</p><p>
+					For the variant that takes an array of rasters (Variant 5),  if <code class="varname">torast</code> is NULL then the <code class="varname">fromband</code> band of each raster in the array is accumulated into a new raster.
+				</p><p>
+					For the variants that take <code class="varname">outdbfile</code> (Variants 6 and 7), the value must include the full path to the raster file. The file must also be accessible to the postgres server process.
+				</p><p>Enhanced: 2.1.0 support for addbandarg added.</p><p>Enhanced: 2.1.0 support for new out-db bands added.</p></div><div class="refsection" title="Examples: Single New Band"><a name="id526391"></a><h2>Examples: Single New Band</h2><pre class="programlisting">
+-- Add another band of type 8 bit unsigned integer with pixels initialized to 200
+UPDATE dummy_rast
+    SET rast = ST_AddBand(rast,'8BUI'::text,200)  
+WHERE rid = 1;
+				</pre><pre class="programlisting">
+-- Create an empty raster 100x100 units, with upper left  right at 0, add 2 bands (band 1 is 0/1 boolean bit switch, band2 allows values 0-15)
+-- uses addbandargs
+INSERT INTO dummy_rast(rid,rast)
+    VALUES(10, ST_AddBand(ST_MakeEmptyRaster(100, 100, 0, 0, 1, -1, 0, 0, 0), 
+	ARRAY[
+		ROW(1, '1BB'::text, 0, NULL),
+		ROW(2, '4BUI'::text, 0, NULL)
+			]::addbandarg[]
+     )
+    );
+    
+-- output meta data of raster bands to verify all is right --
+SELECT  (bmd).*
+FROM (SELECT ST_BandMetaData(rast,generate_series(1,2)) As bmd 
+    FROM dummy_rast WHERE rid = 10) AS foo;
+ --result --   
+ pixeltype | nodatavalue | isoutdb | path
+-----------+----------------+-------------+---------+------
+ 1BB       |             | f       |
+ 4BUI      |             | f       |
+ 
+ 
+-- output meta data of raster -
+SELECT  (rmd).width, (rmd).height, (rmd).numbands
+FROM (SELECT ST_MetaData(rast) As rmd 
+    FROM dummy_rast WHERE rid = 10) AS foo;
+-- result --
+ upperleftx | upperlefty | width | height | scalex | scaley | skewx | skewy | srid | numbands
+------------+------------+-------+--------+------------+------------+-------+-------+------+----------
+          0 |          0 |   100 |    100 |      1 |     -1 |     0 |     0 |   0 |        2
+				</pre></div><div class="refsection" title="Examples: Multiple New Bands"><a name="id526421"></a><h2>Examples: Multiple New Bands</h2><pre class="programlisting">
+SELECT
+	*
+FROM ST_BandMetadata(
+	ST_AddBand(
+		ST_MakeEmptyRaster(10, 10, 0, 0, 1, -1, 0, 0, 0),
+		ARRAY[
+			ROW(NULL, '8BUI', 255, 0),
+			ROW(NULL, '16BUI', 1, 2),
+			ROW(2, '32BUI', 100, 12),
+			ROW(2, '32BF', 3.14, -1)
+		]::addbandarg[]
+	),
+	ARRAY[]::integer[]
+);
+
+ bandnum | pixeltype | nodatavalue | isoutdb | path 
+---------+-----------+-------------+---------+------
+       1 | 8BUI      |           0 | f       | 
+       2 | 32BF      |          -1 | f       | 
+       3 | 32BUI     |          12 | f       | 
+       4 | 16BUI     |           2 | f       | 
+				</pre><pre class="programlisting">
+-- Aggregate the 1st band of a table of like rasters into a single raster 
+-- with as many bands as there are test_types and as many rows (new rasters) as there are mice
+-- NOTE: The ORDER BY test_type is only supported in PostgreSQL 9.0+
+-- for 8.4 and below it usually works to order your data in a subselect (but not guaranteed)
+-- The resulting raster will have a band for each test_type alphabetical by test_type
+-- For mouse lovers: No mice were harmed in this exercise
+SELECT
+	mouse,
+	ST_AddBand(NULL, array_agg(rast ORDER BY test_type), 1) As rast 
+FROM mice_studies
+GROUP BY mouse;
+				</pre></div><div class="refsection" title="Examples: New Out-db band"><a name="id526449"></a><h2>Examples: New Out-db band</h2><pre class="programlisting">
+SELECT
+	*
+FROM ST_BandMetadata(
+	ST_AddBand(
+		ST_MakeEmptyRaster(10, 10, 0, 0, 1, -1, 0, 0, 0),
+		'/home/raster/mytestraster.tif'::text, NULL::int[]
+	),
+	ARRAY[]::integer[]
+);
+
+ bandnum | pixeltype | nodatavalue | isoutdb | path 
+---------+-----------+-------------+---------+------
+       1 | 8BUI      |             | t       | /home/raster/mytestraster.tif
+       2 | 8BUI      |             | t       | /home/raster/mytestraster.tif
+       3 | 8BUI      |             | t       | /home/raster/mytestraster.tif
+				</pre></div><div class="refsection" title="See Also"><a name="id526470"></a><h2>See Also</h2><p>
+					<a class="xref" href="RT_ST_BandMetaData.html" title="ST_BandMetaData">ST_BandMetaData</a>, 
+					<a class="xref" href="RT_ST_BandPixelType.html" title="ST_BandPixelType">ST_BandPixelType</a>, 
+					<a class="xref" href="RT_ST_MakeEmptyRaster.html" title="ST_MakeEmptyRaster">ST_MakeEmptyRaster</a>, 
+					<a class="xref" href="RT_ST_MetaData.html" title="ST_MetaData">ST_MetaData</a>, 
+					<a class="xref" href="RT_ST_NumBands.html" title="ST_NumBands">ST_NumBands</a>, 
+					<a class="xref" href="RT_ST_Reclass.html" title="ST_Reclass">ST_Reclass</a>
+				</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_UpdateRasterSRID.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Constructors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_AsRaster.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">UpdateRasterSRID </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_AsRaster</td></tr></table></div></body></html>

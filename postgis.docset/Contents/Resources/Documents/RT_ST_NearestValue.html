@@ -1,0 +1,74 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>ST_NearestValue</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.75.2"><link rel="home" href="index.html" title="PostGIS 2.1.1 Manual"><link rel="up" href="RT_reference.html#Raster_Pixel_Accessors" title="9.6. Raster Pixel Accessors and Setters"><link rel="prev" href="RT_ST_Value.html" title="ST_Value"><link rel="next" href="RT_ST_Neighborhood.html" title="ST_Neighborhood"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">ST_NearestValue</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="RT_ST_Value.html">Prev</a> </td><th width="60%" align="center">9.6. Raster Pixel Accessors and Setters</th><td width="20%" align="right"> <a accesskey="n" href="RT_ST_Neighborhood.html">Next</a></td></tr></table><hr></div><div class="refentry" title="ST_NearestValue"><a name="RT_ST_NearestValue"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>ST_NearestValue &#8212; 
+					Returns the nearest non-<code class="varname">NODATA</code> value of a given band's pixel specified by a columnx and rowy or a geometric point expressed in the same spatial reference coordinate system as the raster.
+				</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="funcsynopsis"><p><code class="funcdef">double precision <b class="fsfunc">ST_NearestValue</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">bandnum</var>, geometry  <var class="pdparam">pt</var>, boolean  <var class="pdparam">exclude_nodata_value=true</var><code>)</code>;</p><p><code class="funcdef">double precision <b class="fsfunc">ST_NearestValue</b>(</code>raster  <var class="pdparam">rast</var>, geometry  <var class="pdparam">pt</var>, boolean  <var class="pdparam">exclude_nodata_value=true</var><code>)</code>;</p><p><code class="funcdef">double precision <b class="fsfunc">ST_NearestValue</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">bandnum</var>, integer  <var class="pdparam">columnx</var>, integer  <var class="pdparam">rowy</var>, boolean  <var class="pdparam">exclude_nodata_value=true</var><code>)</code>;</p><p><code class="funcdef">double precision <b class="fsfunc">ST_NearestValue</b>(</code>raster  <var class="pdparam">rast</var>, integer  <var class="pdparam">columnx</var>, integer  <var class="pdparam">rowy</var>, boolean  <var class="pdparam">exclude_nodata_value=true</var><code>)</code>;</p></div></div><div class="refsection" title="Description"><a name="id534507"></a><h2>Description</h2><p>
+					Returns the nearest non-<code class="varname">NODATA</code> value of a given band in a given columnx, rowy pixel or at a specific geometric point.  If the columnx, rowy pixel or the pixel at the specified geometric point is <code class="varname">NODATA</code>, the function will find the nearest pixel to the columnx, rowy pixel or geometric point whose value is not <code class="varname">NODATA</code>.
+				</p><p>
+					Band numbers start at 1 and <code class="varname">bandnum</code> is assumed to be 1 if not specified. If <code class="varname">exclude_nodata_value</code> is set to false, then all pixels include <code class="varname">nodata</code> pixels are considered to intersect and return value. If <code class="varname">exclude_nodata_value</code> is not passed in then reads it from metadata of raster.
+				</p><p>Availability: 2.1.0</p><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left"></th></tr><tr><td align="left" valign="top"><p>
+						ST_NearestValue is a drop-in replacement for ST_Value.
+					</p></td></tr></table></div></div><div class="refsection" title="Examples"><a name="id534561"></a><h2>Examples</h2><pre class="programlisting">
+-- pixel 2x2 has value
+SELECT
+	ST_Value(rast, 2, 2) AS value,
+	ST_NearestValue(rast, 2, 2) AS nearestvalue
+FROM (
+	SELECT
+		ST_SetValue(
+			ST_SetValue(
+				ST_SetValue(
+					ST_SetValue(
+						ST_SetValue(
+							ST_AddBand(
+								ST_MakeEmptyRaster(5, 5, -2, 2, 1, -1, 0, 0, 0),
+								'8BUI'::text, 1, 0
+							),
+							1, 1, 0.
+						),
+						2, 3, 0.
+					),
+					3, 5, 0.
+				),
+				4, 2, 0.
+			),
+			5, 4, 0.
+		) AS rast
+) AS foo
+
+ value | nearestvalue 
+-------+--------------
+     1 |            1
+				</pre><pre class="programlisting">
+-- pixel 2x3 is NODATA
+SELECT
+	ST_Value(rast, 2, 3) AS value,
+	ST_NearestValue(rast, 2, 3) AS nearestvalue
+FROM (
+	SELECT
+		ST_SetValue(
+			ST_SetValue(
+				ST_SetValue(
+					ST_SetValue(
+						ST_SetValue(
+							ST_AddBand(
+								ST_MakeEmptyRaster(5, 5, -2, 2, 1, -1, 0, 0, 0),
+								'8BUI'::text, 1, 0
+							),
+							1, 1, 0.
+						),
+						2, 3, 0.
+					),
+					3, 5, 0.
+				),
+				4, 2, 0.
+			),
+			5, 4, 0.
+		) AS rast
+) AS foo
+
+ value | nearestvalue 
+-------+--------------
+       |            1
+				</pre></div><div class="refsection" title="See Also"><a name="id534587"></a><h2>See Also</h2><p>
+					<a class="xref" href="RT_ST_Neighborhood.html" title="ST_Neighborhood">ST_Neighborhood</a>, 
+					<a class="xref" href="RT_ST_Value.html" title="ST_Value">ST_Value</a>
+				</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="RT_ST_Value.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="RT_reference.html#Raster_Pixel_Accessors">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="RT_ST_Neighborhood.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">ST_Value </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> ST_Neighborhood</td></tr></table></div></body></html>
